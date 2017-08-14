@@ -1,22 +1,17 @@
-package com.exercise.invoice.old.decoders.impl;
+package com.exercise.invoice.parsers.sevensegmentsdisplay;
 
-import com.exercise.invoice.old.domain.DigitDisplay;
+import com.exercise.invoice.domain.InvoiceNumber;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
-
-//import static com.exercise.invoice.old.decoders.impl.SevenSegmentsDisplayConstants.INVOICE_NUMBER_LENGTH;
-
 /**
- * Created by itsik on 8/12/17.
- * <p>
- * Tesing digit parser out of a full invoice number
+ * Created by itsik on 8/14/17.
+ *
+ * Test invoice number parser
  */
-public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
+public class SsdInvoiceNumberParserTest {
 
-    private SevenSegmentsDisplayInvoiceNumberDecoder decoder = new SevenSegmentsDisplayInvoiceNumberDecoder();
-
+    private SsdInvoiceNumberParser parser = new SsdInvoiceNumberParser();
     @Test
     public void testParsingAllDigits() {
         String invoiceNumberDisplay =
@@ -24,11 +19,9 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         " _     _  _     _  _  _  _  _ " + System.lineSeparator() +
                         "| |  | _| _||_||_ |_   ||_||_|" + System.lineSeparator() +
                         "|_|  ||_  _|  | _||_|  ||_| _|" + System.lineSeparator();
-        List<DigitDisplay> parsedDigits = decoder.parseDigits(invoiceNumberDisplay);
-        for (int index = 0; index < 10; index++) {
-            Assert.assertEquals(SevenSegmentsDisplayConstants.DIGITS[index], parsedDigits.get(index).toPlainString());
-        }
+        checkInvoiceNumberParsing("0123456789",invoiceNumberDisplay);
     }
+
 
     @Test
     public void testValidInvoiceNumber123456789() {
@@ -37,7 +30,7 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         "    _  _     _  _  _  _  _ " + System.lineSeparator() +
                         "  | _| _||_||_ |_   ||_||_|" + System.lineSeparator() +
                         "  ||_  _|  | _||_|  ||_| _|" + System.lineSeparator();
-        Assert.assertEquals("123456789", decoder.decode(invoiceNumberDisplay));
+        checkInvoiceNumberParsing("123456789", invoiceNumberDisplay);
     }
 
     @Test
@@ -47,7 +40,7 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         "    _  _  _  _  _  _  _  _ " + System.lineSeparator() +
                         "  || || || || || || || || |" + System.lineSeparator() +
                         "  ||_||_||_||_||_||_||_||_|" + System.lineSeparator();
-        Assert.assertEquals("100000000", decoder.decode(invoiceNumberDisplay));
+        checkInvoiceNumberParsing("100000000", invoiceNumberDisplay);
     }
 
     @Test
@@ -57,7 +50,7 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         " _  _  X  _     _  _     _ " + System.lineSeparator() +
                         "|_|  || ||_ |_| _| _|  || |" + System.lineSeparator() +
                         "|_|  ||_| _|  | _||_   ||_|" + System.lineSeparator();
-        Assert.assertEquals("87?543210", decoder.decode(invoiceNumberDisplay));
+        checkInvoiceNumberParsing("87?543210 ILLEGAL", invoiceNumberDisplay);
     }
 
     @Test
@@ -67,7 +60,7 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         " _     _  _     _  _  _  _ " + System.lineSeparator() +
                         " _|  | _| _||_||_ |_   || |" + System.lineSeparator() +
                         "|_|  ||_  _|  | _||_|  ||_ " + System.lineSeparator();
-        Assert.assertEquals("?1234567?", decoder.decode(invoiceNumberDisplay));
+        checkInvoiceNumberParsing("?1234567? ILLEGAL", invoiceNumberDisplay);
     }
 
     @Test
@@ -77,7 +70,8 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         "    _  X  _  -  _  _       " + System.lineSeparator() +
                         "|_| ||| ||A |_| _| _|  || |" + System.lineSeparator() +
                         "|_|  ||_| _|  ||_||_| _||_|" + System.lineSeparator();
-        Assert.assertEquals("?????????", decoder.decode(invoiceNumberDisplay));
+        checkInvoiceNumberParsing("????????? ILLEGAL", invoiceNumberDisplay);
+
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -87,7 +81,7 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         "    _  _     _  _ _  _  _ " + System.lineSeparator() +
                         "  | _| _||_||_ |_  ||_||_|" + System.lineSeparator() +
                         "  ||_  _|  | _||_| ||_| _|" + System.lineSeparator();
-        decoder.decode(invoiceNumberDisplay);
+        parseInvoiceNumber(invoiceNumberDisplay);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -97,7 +91,7 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         "    _  _     _  _ _  _  _ " + System.lineSeparator() +
                         "  | _| _||_||_ |_   ||_||_|" + System.lineSeparator() +
                         "  ||_  _|  | _||_|  ||_| _|" + System.lineSeparator();
-        decoder.decode(invoiceNumberDisplay);
+        parseInvoiceNumber(invoiceNumberDisplay);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -107,7 +101,7 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         "    _  _     _  _  _  _  _ " + System.lineSeparator() +
                         "  | _| _||_||_ |_   ||_||_|" + System.lineSeparator() +
                         "  ||_  _|  | _||_|  ||_| _|";
-        decoder.decode(invoiceNumberDisplay);
+        parseInvoiceNumber(invoiceNumberDisplay);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -118,17 +112,26 @@ public class SevenSegmentsDisplayInvoiceNumberDecoderTest {
                         "  | _| _||_||_ |_   ||_||_|" + System.lineSeparator() +
                         "  ||_  _|  | _||_|  ||_| _|" + System.lineSeparator() +
                         " ";
-        decoder.decode(invoiceNumberDisplay);
+        parseInvoiceNumber(invoiceNumberDisplay);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyInvoiceNumber() {
-        decoder.decode("");
+        parseInvoiceNumber("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullInvoiceNumber() {
-        decoder.decode(null);
+        parseInvoiceNumber(null);
+    }
+
+    private void checkInvoiceNumberParsing(String expectedInvoiceNumberString, String invoiceNumberDisplay) {
+        InvoiceNumber invoiceNumber = parseInvoiceNumber(invoiceNumberDisplay);
+        Assert.assertEquals(expectedInvoiceNumberString,invoiceNumber.toString());
+    }
+
+    private InvoiceNumber parseInvoiceNumber(String invoiceNumberDisplay) {
+        return parser.parse(invoiceNumberDisplay);
     }
 
 }

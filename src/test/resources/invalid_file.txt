@@ -1,0 +1,8 @@
+This is a file
+which does
+not contain
+
+any invoice number
+and should fail
+when trying
+to parse it

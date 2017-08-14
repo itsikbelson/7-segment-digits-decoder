@@ -14,6 +14,8 @@ public interface SsdConstants {
     int DIGIT_WIDTH = 3;
     int DIGIT_HEIGHT = 3;
 
+    int INVOICE_NUMBER_HEIGHT = DIGIT_HEIGHT + 1;
+
     // empty string in the beginning of each digit is used only to overcome auto-layouting in IDE
     String[] DIGITS =
             {

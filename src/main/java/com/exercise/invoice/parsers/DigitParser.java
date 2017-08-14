@@ -4,8 +4,11 @@ import com.exercise.invoice.domain.Digit;
 
 /**
  * Created by itsik on 8/13/17.
+ * <p>
+ * Abstract digit parser.
+ * Concrete classes shoule provide the logic of converting digit display to a digit object
  */
-public interface DigitParser {
+public abstract class DigitParser {
 
-    Digit parse(String digitDisplay);
+    public abstract Digit parse(String digitDisplay);
 }

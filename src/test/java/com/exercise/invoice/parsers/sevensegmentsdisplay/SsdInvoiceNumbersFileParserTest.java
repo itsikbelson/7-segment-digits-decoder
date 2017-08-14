@@ -1,6 +1,6 @@
-package com.exercise.invoice;
+package com.exercise.invoice.parsers.sevensegmentsdisplay;
 
-import com.exercise.invoice.parsers.AbstractInvoiceNumbersFileParser;
+import com.exercise.invoice.parsers.InvoiceNumbersFileParser;
 import com.exercise.invoice.parsers.sevensegmentsdisplay.SsdInvoiceNumbersFileParser;
 import junitx.framework.FileAssert;
 import org.junit.Test;
@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 
@@ -18,7 +19,7 @@ import java.text.MessageFormat;
  */
 public class SsdInvoiceNumbersFileParserTest {
 
-    private AbstractInvoiceNumbersFileParser fileParser = new SsdInvoiceNumbersFileParser();
+    private InvoiceNumbersFileParser fileParser = new SsdInvoiceNumbersFileParser();
 
     @Test
     public void testQ1ValidFile() throws IOException {
@@ -30,22 +31,21 @@ public class SsdInvoiceNumbersFileParserTest {
         checkFileParsing("q1b-illegal/input_Q1b.txt", "q1b-illegal/output_Q1b.txt");
     }
 
-    @Test
-    public void testMissingFile() {
-        throw new RuntimeException("TBD");
-    }
-
-    @Test
-    public void testInvalidFile() {
-        throw new RuntimeException("TBD");
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidFile() throws IOException {
+        parseFile("invalid_file.txt");
     }
 
     private void checkFileParsing(String inputFileName, String expectedOutputFileName) throws IOException {
-        File inputFile = getTestResource(inputFileName);
-        String outputFileName = inputFile.getParent() + "/test_output.txt";
-        File actualOutputFile = fileParser.parse(inputFile, outputFileName);
+        File actualOutputFile = parseFile(inputFileName);
         File expectedOutputFile = getTestResource(expectedOutputFileName);
         FileAssert.assertEquals(expectedOutputFile, actualOutputFile);
+    }
+
+    private File parseFile(String inputFileName) throws IOException {
+        File inputFile = getTestResource(inputFileName);
+        String outputFileName = inputFile.getParent() + "/test_output.txt";
+        return fileParser.parse(inputFile, outputFileName);
     }
 
 
@@ -54,8 +54,8 @@ public class SsdInvoiceNumbersFileParserTest {
             URL resource = getClass().getResource("/" + filename);
             URI uri = resource.toURI();
             return new File(uri);
-        } catch (Throwable e) {
-            throw new RuntimeException(MessageFormat.format("Unable to get file {0}", filename, e));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -12,10 +12,26 @@ import static com.exercise.invoice.parsers.sevensegmentsdisplay.SsdConstants.*;
 
 /**
  * Created by itsik on 8/13/17.
+ * <p>
+ * This class parses a string which represents a single digit in 7-segment-display
+ * to a digit object, which includes the character representing the digit
+ * <p>
+ * Input string always include 9 chars, 3 chars per line.
+ * <p>
+ * Example:
+ * _
+ * |_
+ * |_|
+ * <p>
+ * is represented as : " _ |_ |_|"
+ * <p>
+ * The parsed character will be '6'
+ * <p>
+ * In case of unrecognized digit, the parsed character will be null,
+ * and the digit will be considered illegal
+ * It's the digit class responsibility to define how to handle illegal digits
  */
-public class SsdDigitParser implements DigitParser {
-
-    private static final char UNKNOWN_DIGIT = '?';
+public class SsdDigitParser extends DigitParser {
 
     private final Map<String, Character> digitsDecodingMap =
             Collections.unmodifiableMap(new HashMap<String, Character>() {
@@ -33,11 +49,10 @@ public class SsdDigitParser implements DigitParser {
                 }
             });
 
-    public void validate(String digitDisplay) {
+    private void validate(String digitDisplay) {
         int digitLength = DIGIT_WIDTH * DIGIT_HEIGHT;
-        if (digitDisplay == null || digitDisplay.length() != digitLength)
-        {
-            throw new IllegalArgumentException(MessageFormat.format("Display digit must be a {0} chars string",digitLength));
+        if (digitDisplay == null || digitDisplay.length() != digitLength) {
+            throw new IllegalArgumentException(MessageFormat.format("Display digit must be a {0} chars string", digitLength));
         }
     }
 
