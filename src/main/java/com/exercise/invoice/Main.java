@@ -16,7 +16,6 @@ import java.io.IOException;
  */
 public class Main {
 
-    //TODO rename project
     public static void main(String[] args) throws IOException {
         if (args == null || args.length < 2)
         {
